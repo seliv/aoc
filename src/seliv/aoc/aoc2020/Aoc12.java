@@ -11,6 +11,9 @@ public class Aoc12 {
         int x = 0;
         int y = 0;
 
+        int dx = 10;
+        int dy = 1;
+
         Head head = Head.EAST;
 
         for (String op : ops) {
@@ -18,32 +21,38 @@ public class Aoc12 {
             int raange = Integer.parseInt(op.substring(1));
             switch (dir) {
                 case 'E':
-                    x += raange;
+                    dx += raange;
                     break;
                 case 'W':
-                    x -= raange;
+                    dx -= raange;
                     break;
                 case 'N':
-                    y += raange;
+                    dy += raange;
                     break;
                 case 'S':
-                    y -= raange;
+                    dy -= raange;
                     break;
                 case 'F':
-                    x += raange * head.dx;
-                    y += raange * head.dy;
+                    x += raange * dx;
+                    y += raange * dy;
                     break;
                 case 'L':
                     int n = raange / 90;
                     while (n > 0) {
-                        head = Head.LEFT.get(head);
+                        int newDy = dx;
+                        int newDx = -dy;
+                        dx = newDx;
+                        dy = newDy;
                         n--;
                     }
                     break;
                 case 'R':
                     n = raange / 90;
                     while (n > 0) {
-                        head = Head.RIGHT.get(head);
+                        int newDx = dy;
+                        int newDy = -dx;
+                        dx = newDx;
+                        dy = newDy;
                         n--;
                     }
                     break;
