@@ -1,6 +1,7 @@
 package seliv.aoc.aoc2020;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,29 +12,73 @@ public class Aoc13 {
 
         int time = Integer.parseInt(ops.get(0));
         String buses[] = ops.get(1).split(",");
-        List<Integer> bts = new ArrayList<>();
-        for (String bus : buses) {
-            if (!bus.startsWith("x")) {
-                int bt = Integer.parseInt(bus);
-                bts.add(bt);
+        Map<Integer, Integer> bts = new HashMap<>();
+
+        for (int i = 0; i < buses.length; i++) {
+            String bus =  buses[i];
+            if (bus.startsWith("x")) {
+                continue;
             }
+            int bt = Integer.parseInt(bus);
+            bts.put(bt, i);
+            System.out.println("i, bt = " + i + ", " + bt);
         }
 
-        int minTime = Integer.MAX_VALUE;
-        int route = 0;
-        for (Integer bt : bts) {
-            int t = bt - time % bt;
-            System.out.println("bt = " + bt);
+        long ts = 0;
+        long dts = 0;
+
+        int a = 419;
+        int b = 421;
+        int tdt = 31;
+        long lastTa = 0;
+        for (long l = 0; l < 10000; l++) {
+            long ta = l * a;
+            long bp = ta / b;
+
+            long dt = (bp + 1) * b - ta;
+
+            if (dt == tdt) {
+//                if (lastTa != 0) {
+//                    ts =
+//                }
+                System.out.println("dt, ta, dta  = " + dt + ", " + ta + ", " + (ta - lastTa));
+                lastTa = ta;
+            }
+
+//            System.out.println("dt = " + dt);
+
+        }
+
+        outer:
+        for (long t = 94694 - 13; true; t += 176399) {
+//            System.out.println("t = " + t);
+            for (Map.Entry<Integer, Integer> entry : bts.entrySet()) {
+                int bt = entry.getKey();
+                int tm = entry.getValue();
+                if ((t + tm) % bt != 0) {
+                    continue outer;
+                }
+            }
             System.out.println("t = " + t);
-            if (t < minTime) {
-                minTime = t;
-                route = bt;
-            }
+            break;
         }
 
-        System.out.println("route = " + route);
-        System.out.println("minTime = " + minTime);
-        System.out.println("route * minTime = " + route * minTime);
+
+//        int minTime = Integer.MAX_VALUE;
+//        int route = 0;
+//        for (Integer bt : bts) {
+//            int t = bt - time % bt;
+//            System.out.println("bt = " + bt);
+//            System.out.println("t = " + t);
+//            if (t < minTime) {
+//                minTime = t;
+//                route = bt;
+//            }
+//        }
+//
+//        System.out.println("route = " + route);
+//        System.out.println("minTime = " + minTime);
+//        System.out.println("route * minTime = " + route * minTime);
     }
 
     public static String IN = "939\n" +
