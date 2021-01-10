@@ -50,6 +50,8 @@ public class Aoc13 {
         }
 
         outer:
+        // 176399 = 421 * 419 - the longest intervals from input, both are prime numbers.
+        // Let's just iterate over potential solution moments and find the first one fitting all conditions.
         for (long t = 94694 - 13; true; t += 176399) {
 //            System.out.println("t = " + t);
             for (Map.Entry<Integer, Integer> entry : bts.entrySet()) {
@@ -59,6 +61,7 @@ public class Aoc13 {
                     continue outer;
                 }
             }
+            // My machine takes about 100 seconds to reach the correct solution.
             System.out.println("t = " + t);
             break;
         }
