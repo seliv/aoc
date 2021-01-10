@@ -3,12 +3,12 @@ package seliv.aoc.aoc2020;
 import java.util.*;
 
 public class Aoc20 {
+    static Map<Border, Integer> count = new HashMap<>();
     public static void main(String[] args) {
         List<List<String>> in = InputParser.parseInput(IN3);
         List<String> ops = in.get(0);
 
         List<Tile> tiles = new ArrayList<>();
-        Map<Border, Integer> count = new HashMap<>();
 
         for (List<String> s : in) {
             Tile t = new Tile(s);
@@ -21,6 +21,17 @@ public class Aoc20 {
                 int cnt = count.getOrDefault(border, 0);
                 count.put(border, cnt + 1);
             }
+        }
+
+        System.out.println("tiles = " + tiles.size());
+
+        int side;
+        if (tiles.size() == 144) {
+            side = 12;
+        } else if (tiles.size() == 9) {
+            side = 3;
+        } else {
+            throw new IllegalArgumentException();
         }
 
         System.out.println("count = " + count);
@@ -40,6 +51,166 @@ public class Aoc20 {
             }
         }
         System.out.println("res = " + res);
+
+        Tile[][] board = new Tile[side][];
+        for (int y = 0; y < side; y++) {
+            Tile[] row = new Tile[side];
+            board[y] = row;
+            for (int x = 0; x < side; x++) {
+                Border bl, bt;
+                if (y == 0) {
+                    bt = null;
+                } else {
+                    bt = board[y - 1][x].getBottom();
+                }
+                if (x == 0) {
+                    bl = null;
+                } else {
+                    bl = board[y][x - 1].getRight();
+                }
+
+                board[y][x] = selectTile(tiles, bl, bt);
+            }
+        }
+
+        System.out.println("board = " + board);
+
+        char[][] image = new char[8 * side][];
+
+        for (int y = 0; y < board.length; y++) {
+            for (int ty = 1; ty < 9; ty++) {
+                char[] line = new char[8 * side];
+                for (int x = 0; x < board.length; x++) {
+                    for (int tx = 1; tx < 9; tx ++) {
+                        final char c = board[y][x].cs[ty][tx];
+                        System.out.print(c);
+                        line[x * 8 + (tx - 1)] = c;
+                    }
+                    System.out.print(" ");
+                }
+                System.out.println();
+                image[y * 8 + (ty - 1)] = line;
+            }
+            System.out.println();
+        }
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println("---------------------------------------------------");
+
+        int cnt = 0;
+        for (int y = 0; y < image.length; y++) {
+            for (int x = 0; x < image.length; x++) {
+                System.out.print(image[y][x]);
+                if (image[y][x] == '#') {
+                    cnt++;
+                }
+            }
+            System.out.println();
+        }
+        System.out.println("cnt = " + cnt);
+
+        System.out.println("---------------------------------------------------");
+        System.out.println();
+        for (int i = 0; i < 4; i++) {
+            image = getImageRotation(image);
+            int c = find(image);
+            System.out.println("c = " + c);
+            if (c != 0) {
+                System.out.println("--- = " + (cnt - c * 15));
+            }
+        }
+        image = getImageFlip(image);
+        for (int i = 0; i < 4; i++) {
+            image = getImageRotation(image);
+            int c = find(image);
+            System.out.println("c = " + c);
+            if (c != 0) {
+                System.out.println("--- = " + (cnt - c * 15));
+            }
+        }
+
+    }
+
+    private static int find(char[][] image) {
+        final int s = image.length;
+        int w = 19;
+        int h = 3;
+        int res = 0;
+        for (int x = 0; x < s - w; x++) {
+            for (int y = 0; y < s - h; y++) {
+                if (
+                        image[y][x + 18] == '#' &&
+
+                        image[y + 1][x] == '#' &&
+                        image[y + 1][x + 5] == '#' &&
+                        image[y + 1][x + 6] == '#' &&
+                        image[y + 1][x + 11] == '#' &&
+                        image[y + 1][x + 12] == '#' &&
+                        image[y + 1][x + 17] == '#' &&
+                        image[y + 1][x + 18] == '#' &&
+                        image[y + 1][x + 19] == '#' &&
+
+                        image[y + 2][x + 1] == '#' &&
+                        image[y + 2][x + 4] == '#' &&
+                        image[y + 2][x + 7] == '#' &&
+                        image[y + 2][x + 10] == '#' &&
+                        image[y + 2][x + 13] == '#' &&
+                        image[y + 2][x + 16] == '#'
+                ) {
+                    res++;
+                }
+            }
+        }
+        return res;
+    }
+
+    private static char[][] getImageRotation(char[][] image) {
+        final int s = image.length;
+        char[][] res = new char[s][];
+        for (int y = 0; y < s; y++) {
+            res[y] = new char[s];
+            for (int x = 0; x < s; x++) {
+                res[y][x] = image[s - 1 - x][y];
+            }
+        }
+        return res;
+    }
+
+    private static char[][] getImageFlip(char[][] image) {
+        final int s = image.length;
+        char[][] res = new char[s][];
+        for (int y = 0; y < s; y++) {
+            res[y] = new char[s];
+            for (int x = 0; x < s; x++) {
+                res[y][x] = image[y][s - 1 - x];
+            }
+        }
+        return res;
+    }
+
+    private static Tile selectTile(List<Tile> tiles, Border left, Border top) {
+        final Iterator<Tile> iterator = tiles.iterator();
+        while (iterator.hasNext()) {
+            Tile tile = iterator.next();
+            for (Tile version : tile.getVersions()) {
+                Border bt = version.getTop();
+                Border bl = version.getLeft();
+
+                if (((left == null) && isUnique(bl)) || (bl.equals(left))) {
+                    if (((top == null) && isUnique(bt)) || (bt.equals(top))) {
+                        iterator.remove();
+                        return version;
+                    }
+                }
+            }
+        }
+        throw new IllegalStateException();
+    }
+
+    private static boolean isUnique(Border b) {
+        return count.get(b) == 1;
     }
 
     public static class Tile {
@@ -48,7 +219,7 @@ public class Aoc20 {
 
         Border[] borders = new Border[4];
 
-        public Tile(List<String> in) {
+        private Tile(List<String> in) {
             cs = new char[10][];
             for (int y = 0; y < 10; y++) {
                 cs[y] = new char[10];
@@ -73,6 +244,63 @@ public class Aoc20 {
             borders[1] = new Border(b2);
             borders[2] = new Border(b3);
             borders[3] = new Border(b4);
+        }
+
+        public Border getTop() {
+            return borders[0];
+        }
+
+        public Border getRight() {
+            return borders[1];
+        }
+
+        public Border getBottom() {
+            return borders[2];
+        }
+
+        public Border getLeft() {
+            return borders[3];
+        }
+
+        private Tile getRotation() {
+            List<String> rot = new ArrayList<>();
+            rot.add("Tile " + id);
+            for (int x = 0; x < 10; x++) {
+                String line = "";
+                for (int y = 9; y >= 0; y--) {
+                    line += cs[y][x];
+                }
+                rot.add(line);
+            }
+            return new Tile(rot);
+        }
+
+        private Tile getFlip() {
+            List<String> flip = new ArrayList<>();
+            flip.add("Tile " + id);
+            for (int y = 0; y < 10; y++) {
+                String line = "";
+                for (int x = 9; x >= 0; x--) {
+                    line += cs[y][x];
+                }
+                flip.add(line);
+            }
+            return new Tile(flip);
+        }
+
+        public List<Tile> getVersions() {
+            List<Tile> res = new ArrayList<>();
+            Tile t = this;
+            for (int i = 0; i < 4; i++) {
+                t = t.getRotation();
+                res.add(t);
+            }
+            t = t.getFlip();
+            for (int i = 0; i < 4; i++) {
+                t = t.getRotation();
+                res.add(t);
+            }
+            return res;
         }
     }
     
