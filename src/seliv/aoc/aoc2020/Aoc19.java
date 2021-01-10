@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Aoc19 {
     static Map<Integer, List<List<Integer>>> rules = new HashMap<>();
@@ -37,17 +39,71 @@ public class Aoc19 {
         }
         System.out.println("rules = " + rules);
 
+
+        String s = toRegex(0);
+        System.out.println(s);
+        Pattern p = Pattern.compile(s);
+
         int res = 0;
         for (String msg : messagesIn) {
             System.out.println("msg = " + msg);
-            int z= matches(msg, 0, 0);
-            System.out.println("======= z = " + z);
-            if (z == msg.length()) {
+            Matcher m = p.matcher(msg);
+            final boolean matches = m.matches();
+            System.out.println("m = "  + matches);
+            if (matches) {
                 res++;
             }
-//            break;
         }
         System.out.println("\n\nres = " + res);
+
+//        int res = 0;
+//        for (String msg : messagesIn) {
+//            System.out.println("msg = " + msg);
+//            int z= matches(msg, 0, 0);
+//            System.out.println("======= z = " + z);
+//            if (z == msg.length()) {
+//                res++;
+//                System.out.println("!!!!!!!!!!!!!!!!! " + msg + " MATCHES");
+//            } else {
+//                System.out.println("################# " + msg + " MIS-MATCHES");
+//            }
+//            System.out.println();
+////            break;
+//        }
+//        System.out.println("\n\nres = " + res);
+    }
+
+    static String toRegex(int rule) {
+        String res = "";
+        List<List<Integer>> seqList = rules.get(rule);
+//        String s1 = "";
+//        String s2 = "";
+//        String s3 = "";
+        for (int a = 0; a < seqList.size(); a++) {
+            List<Integer> seq = seqList.get(a);
+            if (res.length() > 0) {
+                res += ")|(";
+            }
+            for (int i : seq) {
+                if (i == -1) {
+                    res += "a";
+                    break;
+                } else if (i == -2) {
+                    res += "b";
+                    break;
+                } else {
+                    res += toRegex(i);
+                }
+            }
+        }
+        if ((rule == 8)) {
+            return "((" + res + ")+)";
+        }
+//        if (rule == 11) {
+//            System.out.println("res = " + res);
+//            return "((" + res + ")+)";
+//        }
+        return "((" + res + "))";
     }
 
     static int matches(String s, int rule, int index) {
@@ -113,12 +169,66 @@ public class Aoc19 {
             "aaabbb\n" +
             "aaaabbb";
 
-    public static String IN2 = "";
+    public static String IN2 = "42: 9 14 | 10 1\n" +
+            "9: 14 27 | 1 26\n" +
+            "10: 23 14 | 28 1\n" +
+            "1: \"a\"\n" +
+//            "11: 42 31\n" +
+            "11: 42 31 | 42 42 31 31 | 42 42 42 31 31 31 | 42 42 42 42 31 31 31 31 | 42 42 42 42 42 31 31 31 31 31\n" +
+//            "11: 42 31 | 42 11 31\n" +
+//            "11: 42 11 31 | 42 31\n" +
+            "5: 1 14 | 15 1\n" +
+            "19: 14 1 | 14 14\n" +
+            "12: 24 14 | 19 1\n" +
+            "16: 15 1 | 14 14\n" +
+            "31: 14 17 | 1 13\n" +
+            "6: 14 14 | 1 14\n" +
+            "2: 1 24 | 14 4\n" +
+            "0: 8 11\n" +
+            "13: 14 3 | 1 12\n" +
+            "15: 1 | 14\n" +
+            "17: 14 2 | 1 7\n" +
+            "23: 25 1 | 22 14\n" +
+            "28: 16 1\n" +
+            "4: 1 1\n" +
+            "20: 14 14 | 1 15\n" +
+            "3: 5 14 | 16 1\n" +
+            "27: 1 6 | 14 18\n" +
+            "14: \"b\"\n" +
+            "21: 14 1 | 1 14\n" +
+            "25: 1 1 | 1 14\n" +
+            "22: 14 14\n" +
+            "8: 42\n" +
+//            "8: 42 | 42 8\n" +
+//            "8: 42 8 | 42\n" +
+            "26: 14 22 | 1 20\n" +
+            "18: 15 15\n" +
+            "7: 14 5 | 1 21\n" +
+            "24: 14 1\n" +
+            "\n" +
+            "abbbbbabbbaaaababbaabbbbabababbbabbbbbbabaaaa\n" +
+            "bbabbbbaabaabba\n" +
+            "babbbbaabbbbbabbbbbbaabaaabaaa\n" +
+            "aaabbbbbbaaaabaababaabababbabaaabbababababaaa\n" +
+            "bbbbbbbaaaabbbbaaabbabaaa\n" +
+            "bbbababbbbaaaaaaaabbababaaababaabab\n" +
+            "ababaaaaaabaaab\n" +
+            "ababaaaaabbbaba\n" +
+            "baabbaaaabbaaaababbaababb\n" +
+            "abbbbabbbbaaaababbbbbbaaaababb\n" +
+            "aaaaabbaabaaaaababaa\n" +
+            "aaaabbaaaabbaaa\n" +
+            "aaaabbaabbaaaaaaabbbabbbaaabbaabaaa\n" +
+            "babaaabbbaaabaababbaabababaaab\n" +
+            "aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba";
 
     public static String IN3 = "27: 116 44 | 127 69\n" +
             "19: 60 116 | 55 127\n" +
             "91: 127 13 | 116 127\n" +
-            "11: 42 31\n" +
+//            "11: 42 31\n" +
+//            "11: 42 31 | 42 11 31\n" +
+            "11: 42 31 | 42 42 31 31 | 42 42 42 31 31 31 | 42 42 42 42 31 31 31 31 | 42 42 42 42 42 31 31 31 31 31\n" +
+
             "30: 80 116 | 100 127\n" +
             "53: 78 116 | 100 127\n" +
             "47: 116 129 | 127 76\n" +
@@ -207,6 +317,7 @@ public class Aoc19 {
             "12: 127 64 | 116 115\n" +
             "130: 17 127 | 33 116\n" +
             "8: 42\n" +
+//            "8: 42 | 42 8\n" +
             "60: 116 72 | 127 59\n" +
             "113: 117 127 | 117 116\n" +
             "131: 16 127 | 56 116\n" +
