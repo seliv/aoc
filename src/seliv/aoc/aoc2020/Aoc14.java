@@ -1,9 +1,6 @@
 package seliv.aoc.aoc2020;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Aoc14 {
     public static void main(String[] args) {
@@ -15,32 +12,49 @@ public class Aoc14 {
 
         Map<Long, Long> mem = new HashMap<>();
 
+        List<Long> fbs = new ArrayList<>();
+
         for (String op : ops) {
             if (op.startsWith("mask")) {
                 String mask = op.substring(7);
                 orMask = 0;
-                andMask = 0xFFFF_FFFF_FFFFL;
+//                andMask = 0xFFFF_FFFF_FFFFL;
                 long bit = 1;
+                long fb = 0;
+                fbs.clear();
                 for (int i = mask.length() - 1; i >= 0; i--) {
-                    if (mask.charAt(i) == '0') {
-                        andMask = andMask - bit;
-                    }
+//                    if (mask.charAt(i) == '0') {
+//                        andMask = andMask - bit;
+//                    }
                     if (mask.charAt(i) == '1') {
                         orMask = orMask + bit;
                     }
+                    if (mask.charAt(i) == 'X') {
+                        fb++;
+                        fbs.add(bit);
+                    }
                     bit *= 2L;
                 }
+                System.out.println("fb = " + fb);
             } else {
                 String ss[] = op.split("[]\\[\\]\\=]");
 //                System.out.println("ss = " + Arrays.toString(ss));
                 long addr = Long.parseLong(ss[1].trim());
                 long val = Long.parseLong(ss[3].trim());
-                System.out.println("addr, val = " + addr + ", " + val);
+//                System.out.println("addr, val = " + addr + ", " + val);
 
-                long mv = (val & andMask) | orMask;
-                System.out.println("mv = " + mv);
+//                long mv = (val & andMask) | orMask;
+//                System.out.println("mv = " + mv);
 
-                mem.put(addr, mv);
+//                mem.put(addr, mv);
+                addr |= orMask;
+
+                andMask = 0xFFFF_FFFF_FFFFL;
+                for (Long value : fbs) {
+                    andMask -= value;
+                }
+                applyFloating(addr, 0, fbs, mem, val, andMask);
+                System.out.println();
             }
 
         }
@@ -52,6 +66,21 @@ public class Aoc14 {
         }
 
         System.out.println("sum = " + sum);
+    }
+
+    public static void applyFloating(long value, long mask, List<Long> fbs, Map<Long, Long> mem, long dest, long andMask) {
+        if (fbs.isEmpty()) {
+//            System.out.println("mask = " + mask);
+            final long res = (value & andMask) | mask;
+            System.out.println("res = " + res);
+            mem.put(res, dest);
+        } else {
+            ArrayList<Long> shorter = new ArrayList<>(fbs);
+            long first = shorter.get(0);
+            shorter.remove(0);
+            applyFloating(value, mask, shorter, mem, dest, andMask);
+            applyFloating(value, mask | first, shorter, mem, dest, andMask);
+        }
     }
 
     public static String IN = "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X\n" +
@@ -614,6 +643,9 @@ public class Aoc14 {
             "mem[48835] = 518717801\n" +
             "mem[51363] = 892";
 
-    public static String IN3 = "";
+    public static String IN3 = "mask = 000000000000000000000000000000X1001X\n" +
+            "mem[42] = 100\n" +
+            "mask = 00000000000000000000000000000000X0XX\n" +
+            "mem[26] = 1";
 
 }
