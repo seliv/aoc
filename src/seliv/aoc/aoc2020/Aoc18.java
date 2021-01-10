@@ -26,16 +26,14 @@ public class Aoc18 {
         long left = term();
         while (i < s.length()) {
             char c = s.charAt(i);
-            if ((c != '+' && (c != '*'))) {
+            if (c != '*') {
 //                throw new IllegalStateException("Must be + or *");
                 break;
             }
             i++;
 
             long right = term();
-            if (c == '+') {
-                left += right;
-            } else if (c == '*') {
+            if (c == '*') {
                 left *= right;
             } else {
                 throw new IllegalStateException("Don't know how to do " + c);
@@ -47,6 +45,28 @@ public class Aoc18 {
     }
 
     public static long term() {
+        long left = factor();
+        while (i < s.length()) {
+            char c = s.charAt(i);
+            if (c != '+') {
+//                throw new IllegalStateException("Must be + or *");
+                break;
+            }
+            i++;
+
+            long right = term();
+            if (c == '+') {
+                left += right;
+            } else {
+                throw new IllegalStateException("Don't know how to do " + c);
+            }
+        }
+
+//        System.out.println("res = " + left);
+        return left;
+    }
+
+    public static long factor() {
         char c = s.charAt(i);
         long res;
         if (c == '(') {
